@@ -1,10 +1,54 @@
-#include "Arduino.h"
+#ifndef Arduino_Nesso_N1_h
+#define Arduino_Nesso_N1_h
+
+#if defined(__cplusplus)
+
+#include <Arduino.h>
 #include "Wire.h"
 #include <M5GFX.h>
 #include <lgfx/v1/panel/Panel_ST7789.hpp>
 //#include "Arduino_BMI270_BMM150.h"
 
-#if defined(__cplusplus)
+#undef LORA_LNA_ENABLE
+#undef LORA_ANTENNA_SWITCH
+#undef LORA_ENABLE
+#undef POWEROFF
+#undef GROVE_POWER_EN
+#undef VIN_DETECT
+#undef LCD_RESET
+#undef LCD_BACKLIGHT
+#undef LED_BUILTIN
+#undef KEY1
+#undef KEY2
+
+// address: 0x43/0x44
+class ExpanderPin {
+public:
+  ExpanderPin(uint16_t _pin) : pin(_pin & 0xFF), address(_pin & 0x100 ? 0x44 : 0x43){};
+  uint8_t pin;
+  uint8_t address;
+  bool initialized() {
+    return _initialized[address - 0x43];
+  }
+  void initialize() {
+    _initialized[address - 0x43] = true;
+  }
+private:
+  static bool _initialized[2];
+};
+
+
+extern ExpanderPin LORA_LNA_ENABLE;
+extern ExpanderPin LORA_ANTENNA_SWITCH;
+extern ExpanderPin LORA_ENABLE;
+extern ExpanderPin POWEROFF;
+extern ExpanderPin GROVE_POWER_EN;
+extern ExpanderPin VIN_DETECT;
+extern ExpanderPin LCD_RESET;
+extern ExpanderPin LCD_BACKLIGHT;
+extern ExpanderPin LED_BUILTIN;
+extern ExpanderPin KEY1;
+extern ExpanderPin KEY2;
 
 void pinMode(ExpanderPin pin, uint8_t mode);
 void digitalWrite(ExpanderPin pin, uint8_t val);
@@ -206,4 +250,5 @@ public:
   }
 };
 
+#endif
 #endif
