@@ -3,6 +3,8 @@
 static bool wireInitialized = true;
 bool ExpanderPin::_initialized[2] = {false, false};
 
+MyBoschSensor myIMU(Wire);
+
 // IO expander datasheet from https://www.diodes.com/datasheet/download/PI4IOE5V6408.pdf
 // Battery charger datasheet from https://www.awinic.com/en/productDetail/AW32001ACSR
 // battery gauge datasheet from https://www.ti.com/product/BQ27220
@@ -40,13 +42,17 @@ void pinMode(ExpanderPin pin, uint8_t mode) {
   if (!pin.initialized()) {
     Wire.begin();
     // reset all registers to default state
+    readRegister(pin.address, 0x1);
     writeRegister(pin.address, 0x1, 0x1);
+    readRegister(pin.address, 0x1);
     // set all pins as high as default state
     writeRegister(pin.address, 0x9, 0xFF);
     // interrupt mask to all pins
     writeRegister(pin.address, 0x11, 0xFF);
     // all input
     writeRegister(pin.address, 0x3, 0);
+    // clear interrupt status
+    readRegister(pin.address, 0x13);
     pin.initialize();
   }
   writeBitRegister(pin.address, 0x3, pin.pin, mode == OUTPUT);
